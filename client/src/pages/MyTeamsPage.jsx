@@ -84,7 +84,8 @@ function TeamsTab() {
               </span>
               {seatsTotal !== null ? (
                 <span className="chip chip-alt">
-                  {members.length} of {seatsTotal} seats filled
+                  {/* members[] holds only joined teammates — the owner occupies the first seat */}
+                  {members.length + 1} of {seatsTotal} seats filled
                 </span>
               ) : null}
             </div>

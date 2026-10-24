@@ -247,6 +247,7 @@ export default function ProfilePage() {
                 setInterests(next);
                 setSaved(false);
               }}
+              placeholder="Type an interest and press Enter"
               inputLabel="Add an interest"
             />
             {fieldErrors.interests ? (

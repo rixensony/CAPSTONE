@@ -1,3 +1,7 @@
+import { Link } from 'react-router-dom';
+import StatusBadge from './StatusBadge.jsx';
+import SkillTag from './SkillTag.jsx';
+
 export function formatDate(value) {
   if (!value) return '';
   const date = new Date(value);

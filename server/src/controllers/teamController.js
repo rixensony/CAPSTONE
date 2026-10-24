@@ -11,7 +11,11 @@ export const myTeams = asyncHandler(async (req, res) => {
   const teams = await Team.find({
     $or: [{ owner: req.user._id }, { 'members.user': req.user._id }],
   })
-    .populate({ path: 'project', select: 'title status teamSize _id owner' })
+    .populate({
+      path: 'project',
+      select: 'title status teamSize _id owner',
+      populate: { path: 'owner', select: 'name _id' },
+    })
     .populate({ path: 'members.user', select: 'name department _id' })
     .sort({ createdAt: -1 });
 

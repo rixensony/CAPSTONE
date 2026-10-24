@@ -159,7 +159,9 @@ export default function ProjectDetailsPage() {
     );
   }
 
-  const payload = data ?? {};
+  // GET /projects/:id replies with the envelope { data: { project, team, myRequest, isOwner } };
+  // unwrap once so every read below sees the payload itself.
+  const payload = data?.data ?? data ?? {};
   const project =
     payload?.project ?? (payload && payload._id ? payload : null);
   const team = payload?.team ?? project?.team ?? null;

@@ -50,7 +50,9 @@ export function AuthProvider({ children }) {
       .then((payload) => {
         if (!alive) return;
         const current = readToken();
-        const freshUser = payload?.user ?? null;
+        // /auth/me replies with the envelope { data: { user } }.
+        const body = payload?.data ?? payload ?? {};
+        const freshUser = body?.user ?? null;
         setUser(freshUser);
         setToken(current);
         persist(current, freshUser);
