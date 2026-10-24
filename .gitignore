@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Environment files — never commit real values
+.env
+.env.local
+.env.*.local
+client/.env
+server/.env
+
+# Build output
+client/dist/
+dist/
+build/
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Test / coverage artifacts
+coverage/
+
+# MongoDB in-memory server binaries (used by the automated test suite)
+.cache/mongodb-binaries/
