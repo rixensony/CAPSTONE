@@ -1,0 +1,431 @@
+{
+  "info": {
+    "name": "SkillBridge API",
+    "description": "Student Skill-Sharing & Project Collaboration Platform (MERN).\n\nSetup:\n1. `cd server && npm install && npm run dev:mongo && npm run seed` (keep the console open — the seed prints the demo password) and `npm run dev`.\n2. Auth → **Login (student)** stores `{{token}}`; **Login (admin)** stores `{{adminToken}}`. Every folder then uses the right token automatically.\n\nEnvelope: success `{ \"data\": ... }` (lists add `page`, `limit`, `total`, `pages`); errors `{ \"message\", \"errors\": [] }`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000/api" },
+    { "key": "email", "value": "aditi@skillbridge.dev" },
+    { "key": "password", "value": "the-password-printed-by-npm-run-seed" },
+    { "key": "adminEmail", "value": "admin@skillbridge.dev" },
+    { "key": "projectId", "value": "" },
+    { "key": "requestId", "value": "" },
+    { "key": "teamId", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "memberId", "value": "" },
+    { "key": "token", "value": "" },
+    { "key": "adminToken", "value": "" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/../health", "host": ["{{baseUrl}}"], "path": ["..", "health"] },
+            "description": "Root-level `GET /health` → `{ \"status\": \"ok\" }`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Student\",\n  \"email\": \"test.student@skillbridge.dev\",\n  \"password\": \"Passw0rd!23\",\n  \"department\": \"Computer Science\",\n  \"skills\": [\"React\"],\n  \"interests\": [\"Hackathons\"],\n  \"bio\": \"Created from Postman.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Login (student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('200 on login', () => pm.response.code === 200);",
+                  "pm.collectionVariables.set('token', (body.data && body.data.token) || '');",
+                  "if (body.data && body.data.user) pm.collectionVariables.set('userId', body.data.user._id || body.data.user.id || '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "description": "Stores the token as `{{token}}` for every Auth-bearer request."
+          }
+        },
+        {
+          "name": "Login (admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('200 on admin login', () => pm.response.code === 200);",
+                  "pm.collectionVariables.set('adminToken', (body.data && body.data.token) || '');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/login", "host": ["{{baseUrl}}"], "path": ["auth", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "My profile (me)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/auth/me", "host": ["{{baseUrl}}"], "path": ["auth", "me"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "List students (search/skill filter)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/users?page=1&limit=9",
+              "host": ["{{baseUrl}}"],
+              "path": ["users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "9" },
+                { "key": "search", "value": "react", "disabled": true },
+                { "key": "skill", "value": "Node.js", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Student profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Update my profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/users/me", "host": ["{{baseUrl}}"], "path": ["users", "me"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Aditi Rao\",\n  \"department\": \"Computer Science\",\n  \"bio\": \"Third-year CSE student. I build full-stack apps with the MERN stack.\",\n  \"skills\": [\"React\", \"Node.js\", \"MongoDB\", \"Express\"],\n  \"interests\": [\"Web Development\", \"Hackathons\"]\n}"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Projects",
+      "item": [
+        {
+          "name": "List projects (filters)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.test('200 + envelope', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(body).to.have.property('data');",
+                  "});",
+                  "if (body.data && body.data.length) pm.collectionVariables.set('projectId', body.data[0]._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/projects?page=1&limit=9",
+              "host": ["{{baseUrl}}"],
+              "path": ["projects"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "9" },
+                { "key": "status", "value": "open", "disabled": true },
+                { "key": "search", "value": "react", "disabled": true },
+                { "key": "skill", "value": "Node.js", "disabled": true },
+                { "key": "owner", "value": "{{userId}}", "disabled": true }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Project detail (+team, myRequest)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/projects/{{projectId}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectId}}"] }
+          }
+        },
+        {
+          "name": "Create project",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/projects", "host": ["{{baseUrl}}"], "path": ["projects"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman demo project\",\n  \"description\": \"At least 30 characters so validation passes.\",\n  \"teamSize\": 2,\n  \"requiredSkills\": [\"React\"],\n  \"status\": \"open\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Update project",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/projects/{{projectId}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Postman demo project (updated)\",\n  \"teamSize\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete project",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/projects/{{projectId}}", "host": ["{{baseUrl}}"], "path": ["projects", "{{projectId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Teams",
+      "item": [
+        {
+          "name": "My teams",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/teams/mine", "host": ["{{baseUrl}}"], "path": ["teams", "mine"] }
+          }
+        },
+        {
+          "name": "Team detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/teams/{{teamId}}", "host": ["{{baseUrl}}"], "path": ["teams", "{{teamId}}"] }
+          }
+        },
+        {
+          "name": "Remove member (owner only)",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/teams/{{teamId}}/members/{{memberId}}", "host": ["{{baseUrl}}"], "path": ["teams", "{{teamId}}", "members", "{{memberId}}"] },
+            "description": "Frees a seat; status is not reverted automatically."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Join requests",
+      "item": [
+        {
+          "name": "Send join request",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if (body.data && body.data._id) pm.collectionVariables.set('requestId', body.data._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/requests", "host": ["{{baseUrl}}"], "path": ["requests"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"projectId\": \"{{projectId}}\",\n  \"message\": \"I would love to contribute.\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Incoming requests (owner)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/requests/incoming", "host": ["{{baseUrl}}"], "path": ["requests", "incoming"] }
+          }
+        },
+        {
+          "name": "My requests (sent)",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/requests/mine", "host": ["{{baseUrl}}"], "path": ["requests", "mine"] }
+          }
+        },
+        {
+          "name": "Respond to request (accept/reject)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/requests/{{requestId}}", "host": ["{{baseUrl}}"], "path": ["requests", "{{requestId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"accepted\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel my request",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/requests/{{requestId}}", "host": ["{{baseUrl}}"], "path": ["requests", "{{requestId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "item": [
+        {
+          "name": "Student dashboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/dashboard", "host": ["{{baseUrl}}"], "path": ["dashboard"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{adminToken}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "Platform stats",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/admin/stats", "host": ["{{baseUrl}}"], "path": ["admin", "stats"] }
+          }
+        },
+        {
+          "name": "List users (search)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/admin/users?search=&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["admin", "users"],
+              "query": [
+                { "key": "search", "value": "" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "20" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Change user role",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}/role", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{userId}}", "role"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"student\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete user",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["admin", "users", "{{userId}}"] }
+          }
+        },
+        {
+          "name": "Delete project",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{baseUrl}}/admin/projects/{{projectId}}", "host": ["{{baseUrl}}"], "path": ["admin", "projects", "{{projectId}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Error playground",
+      "item": [
+        {
+          "name": "404 unknown route",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/does-not-exist", "host": ["{{baseUrl}}"], "path": ["does-not-exist"] }
+          }
+        },
+        {
+          "name": "400 validation (short password)",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/auth/register", "host": ["{{baseUrl}}"], "path": ["auth", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"A\",\n  \"email\": \"not-an-email\",\n  \"password\": \"123\"\n}"
+            }
+          }
+        },
+        {
+          "name": "401 without token",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/dashboard", "host": ["{{baseUrl}}"], "path": ["dashboard"] }
+          }
+        }
+      ]
+    }
+  ]
+}

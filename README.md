@@ -117,13 +117,40 @@ skillbridge/
 
 Landing → Login/Register → **Dashboard** · **Explore Projects** (search/filter/details) · **Project Form** · **Find Teammates** · **Students' profiles** · **My Profile** · **My Teams** (teams / requests sent / requests received) · **Admin Panel** — wireframes in [docs/wireframes.md](docs/wireframes.md), all protected screens render mobile-first with the four data states.
 
+### Renders (captured from the running app — real data, real flows)
+
+| | |
+|---|---|
+| ![Landing](docs/screenshots/01-landing.png) | ![Login](docs/screenshots/02-login.png) |
+| ![Register](docs/screenshots/03-register.png) | ![Dashboard](docs/screenshots/04-dashboard.png) |
+| ![Explore](docs/screenshots/05-explore.png) | ![Project details](docs/screenshots/06-project-details.png) |
+| ![Find teammates](docs/screenshots/07-find-teammates.png) | ![My teams](docs/screenshots/08-my-teams.png) |
+| ![Requests received](docs/screenshots/09-requests-received.png) | ![Profile](docs/screenshots/10-profile.png) |
+| ![New project](docs/screenshots/11-project-form.png) | ![Mobile](docs/screenshots/12-dashboard-mobile.png) |
+
+Admin panel: ![Admin](docs/screenshots/13-admin.png)
+
+(Upper image of each pair lands at half width in the rendered README; originals are full-size PNGs in `docs/screenshots/`.)
+
 ## 10. Setup
 
 See the [Quick start section](#quick-start) below; full environment variables in [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## 11. Testing
 
-Automated API integration suite (`npm run test:api`, guide §8 levels: valid/invalid input, missing auth, wrong role, ownership, cascade behavior), a Postman collection for manual runs, and a manual UI test record in [docs/testing.md](docs/testing.md).
+Automated API integration suite (`npm run test:api` — 41 green tests, guide §8 levels: valid/invalid input, missing auth, wrong role, ownership, cascade behavior), a Postman collection (`server/postman/`) for manual runs, and a manual UI test record + screenshots in [docs/testing.md](docs/testing.md).
+
+### Milestone evidence map (guide §15)
+
+| Guide milestone | Where to look |
+|---|---|
+| M1 Planning | README §1–6 (`docs/wireframes.md`) |
+| M2–M3 Database + API structure | `server/src/{config,models,middleware}` + `docs/api-contract.md` |
+| M3–M4 REST API | `server/src/{controllers,routes}` + Postman collection |
+| M5–M6 React client + integration | `client/src` + `docs/testing.md` §2 screenshots |
+| M7 Testing & seed | `server/src/tests` (41 tests) + `server/src/seeders` |
+| M8 Deployment plan | `docs/DEPLOYMENT.md` |
+| M9 Final review | this README + `docs/testing.md` §5 |
 
 ## 12. Known limitations & future improvements
 
@@ -138,23 +165,31 @@ Honest list (guide §13):
 
 ## Quick start
 
+**Option A — zero-setup (no local Mongo install required):**
+
 ```bash
-# 1. Requirements: Node 18+, and a local MongoDB (mongod) or a free MongoDB Atlas cluster
 git clone <this-repo> && cd skillbridge
 
-# 2. API
+# 1. API
 cd server
-cp .env.example .env          # edit MONGODB_URI + JWT_SECRET
+cp .env.example .env          # defaults are fine for local dev (production refuses placeholder secrets)
 npm install
-npm run seed                  # optional demo data (prints random credentials in the terminal)
-npm run dev                   # http://localhost:5000
+npm run dev:mongo             # terminal 1: starts an in-memory MongoDB on :27017 (keep it open)
+npm run dev                   # terminal 2: http://localhost:5000
 
-# 3. Client (new terminal)
+# 2. Client (new terminal)
 cd client
 cp .env.example .env          # VITE_API_URL=http://localhost:5000/api
 npm install
 npm run dev                   # http://localhost:5173
 ```
+
+**Option B — own MongoDB:** point `MONGODB_URI` at a local `mongod` or Atlas cluster, skip `dev:mongo`, otherwise identical.
+
+> `npm run seed` (run once from `server/`) loads five demo students + one admin
+> (`admin@skillbridge.dev`) with teams, projects and a pending join request. It **prints a
+> random password in the console** (never committed) — use it for every demo account.
+> For a clean slate for real users, skip seeding entirely.
 
 | App | Folder | Command | URL |
 |---|---|---|---|
