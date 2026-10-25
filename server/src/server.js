@@ -28,6 +28,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Failed to start the API:', error.message);
+  console.error('Failed to start the API:', error);
   process.exit(1);
 });
+
