@@ -28,7 +28,13 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error('Failed to start the API:', error);
+  console.error('Failed to start the API:', error.message);
+  if (error.cause?.servers) {
+    for (const [host, s] of error.cause.servers) {
+      console.error(`[Shard ${host}] error:`, s.error?.message || s.error || 'no error');
+    }
+  }
   process.exit(1);
 });
+
 
